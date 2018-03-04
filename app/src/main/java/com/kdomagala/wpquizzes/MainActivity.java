@@ -59,6 +59,7 @@ public class MainActivity extends AppCompatActivity {
     DownloadQuizList downloadQuizList;
     DownloadImage downloadImage;
 
+
     public boolean isNetworkAvailable() {
         ConnectivityManager cm = (ConnectivityManager) this.getSystemService(Context.CONNECTIVITY_SERVICE);
 
@@ -73,7 +74,6 @@ public class MainActivity extends AppCompatActivity {
         else
             return false;
     }
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -497,38 +497,5 @@ public class MainActivity extends AppCompatActivity {
     protected void onPause() {
         super.onPause();
         saveResults();
-
-        /*if(downloadQuizList!=null)
-        {
-            downloadQuizList.cancel(true);
-            File file = new File (getApplicationContext().getFilesDir().getPath()+"/quizList.txt");
-            if(file.exists()){
-                boolean delete = file.delete();
-                Log.i("delete","file deleted");
-            }
-            else
-                Log.i("delete","no file deleted");
-        }
-        if(downloadQuiz!=null) {
-            downloadQuiz.cancel(true);
-            File file = new File (getApplicationContext().getFilesDir().getPath()+"/quizList.txt");
-            if(file.exists()){
-                boolean delete = file.delete();
-                Log.i("delete","file deleted");
-            }
-            else
-                Log.i("delete","no file deleted");
-        }
-        if(downloadImage!=null) {
-            downloadImage.cancel(true);
-            File file = new File (getApplicationContext().getFilesDir().getPath()+"/quizList.txt");
-            if(file.exists()){
-                boolean delete = file.delete();
-                Log.i("delete","file deleted");
-            }
-            else
-                Log.i("delete","no file deleted");
-
-        }*/
     }
 }
