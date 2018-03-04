@@ -10,19 +10,15 @@ import android.graphics.BitmapFactory;
 import android.net.ConnectivityManager;
 import android.os.AsyncTask;
 import android.os.Build;
-import android.os.Looper;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.request.animation.GlideAnimation;
-import com.bumptech.glide.request.target.SimpleTarget;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -38,14 +34,10 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.OutputStream;
 import java.io.OutputStreamWriter;
-import java.lang.ref.WeakReference;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
-import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 public class MainActivity extends AppCompatActivity {
@@ -275,10 +267,10 @@ public class MainActivity extends AppCompatActivity {
         }
         catch (FileNotFoundException e) {
             Toast.makeText(getApplicationContext(), "File not found", Toast.LENGTH_LONG).show();
-            Log.e("login activity", "File not found: " + e.toString());
+            Log.e("File", "File not found: " + e.toString());
         } catch (IOException e) {
             Toast.makeText(getApplicationContext(), "Can not read file", Toast.LENGTH_LONG).show();
-            Log.e("login activity", "Can not read file: " + e.toString());
+            Log.e("File", "Can not read file: " + e.toString());
         }
 
         return ret;
@@ -342,12 +334,8 @@ public class MainActivity extends AppCompatActivity {
                 for (int i = 0; i < jsonQuizArray.length(); i++) {
 
                     JSONObject quizObject = jsonQuizArray.getJSONObject(i);
-
-                    //"http://quiz.o2.pl/api/v1/quiz/"+quizIds[i]+"/0";
                     quizIds[i] = "http://quiz.o2.pl/api/v1/quiz/"+quizObject.getString("id")+"/0";
                     JSONObject jPhotoObject = quizObject.getJSONObject("mainPhoto");
-                    String photoUrl = "";
-                    photoUrl = jPhotoObject.getString("url");
                     imageUrls[i] = jPhotoObject.getString("url");
                 }
 

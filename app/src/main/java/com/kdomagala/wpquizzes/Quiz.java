@@ -1,6 +1,5 @@
 package com.kdomagala.wpquizzes;
 
-import android.content.Intent;
 import android.graphics.Bitmap;
 
 public class Quiz {
@@ -35,9 +34,4 @@ public class Quiz {
 
     public void setBitmap(Bitmap bitmap){mBitmap = bitmap;}
 
-    public static void packageIntent(Intent intent, String title) {
-
-        intent.putExtra(Quiz.TITLE, title);
-
-    }
 }

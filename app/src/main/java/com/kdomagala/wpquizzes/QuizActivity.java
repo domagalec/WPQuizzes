@@ -6,9 +6,6 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
-import android.graphics.drawable.GradientDrawable;
-import android.graphics.drawable.StateListDrawable;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
@@ -29,11 +26,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.util.concurrent.Delayed;
-
-import static java.lang.Integer.parseInt;
 
 public class QuizActivity extends AppCompatActivity {
 
@@ -52,7 +44,6 @@ public class QuizActivity extends AppCompatActivity {
 
     String quiz;
     String answer[] = new String[4];
-    String isCorrect[] = new String[4];
     int correctAnswer=0;
     int k = 0;
     JSONArray jQuestionsArray;
@@ -154,9 +145,8 @@ public class QuizActivity extends AppCompatActivity {
             handler.postDelayed(new Runnable() {
                 @Override
                 public void run() {
-                    // Do something after 5s = 5000ms
+                    // Do something after 0.5s = 500ms
                     v.getBackground().clearColorFilter();
-                   // v.setBackgroundResource(android.R.drawable.btn_default);
                     afterClick();
                 }
             }, 500);
@@ -173,9 +163,8 @@ public class QuizActivity extends AppCompatActivity {
             handler.postDelayed(new Runnable() {
                 @Override
                 public void run() {
-                    // Do something after 5s = 5000ms
+                    // Do something after 0.5s = 500ms
                     v.getBackground().clearColorFilter();
-                    //v.setBackgroundResource(android.R.drawable.btn_default);
                     afterClick();
                 }
             }, 500);
@@ -206,6 +195,7 @@ public class QuizActivity extends AppCompatActivity {
         }
     }
 
+    //Make sure that back button pressed saves the result
     @Override
     public void onBackPressed()
     {
@@ -273,10 +263,10 @@ public class QuizActivity extends AppCompatActivity {
         }
         catch (FileNotFoundException e) {
             Toast.makeText(getApplicationContext(), "File not found", Toast.LENGTH_LONG).show();
-            Log.e("login activity", "File not found: " + e.toString());
+            Log.e("Exception", "File not found: " + e.toString());
         } catch (IOException e) {
             Toast.makeText(getApplicationContext(), "Can not read file", Toast.LENGTH_LONG).show();
-            Log.e("login activity", "Can not read file: " + e.toString());
+            Log.e("Exception", "Can not read file: " + e.toString());
         }
 
         return ret;

@@ -1,7 +1,6 @@
 package com.kdomagala.wpquizzes;
 
 import android.content.Context;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,28 +17,17 @@ public class QuizListAdapter extends BaseAdapter {
     private final List<Quiz> mQuizList = new ArrayList<>();
     private final Context mContext;
 
-    private static final String TAG = "BuildDiary";
+    private static final String TAG = "WPQuizzes";
 
     public QuizListAdapter(Context context) {
 
         mContext = context;
     }
 
-    // Add a Item to the adapter
-    // Notify observers that the data set has changed
-
     public void add(Quiz quiz) {
 
         mQuizList.add(quiz);
         notifyDataSetChanged();
-        //Log.i(TAG, "Add quiz from QuizListAdapter");
-    }
-
-   public void edit(Quiz quiz, int position){
-        mQuizList.set(position, quiz);
-        notifyDataSetChanged();
-        Log.i(TAG, "Edit item from ItemListAdapter");
-
     }
 
     @Override
@@ -65,10 +53,6 @@ public class QuizListAdapter extends BaseAdapter {
     }
 
     // Create a View for the Item at specified position
-    // Remember to check whether convertView holds an already allocated View
-    // before created a new View.
-    // Consider using the ViewHolder pattern to make scrolling more efficient
-    // See: http://developer.android.com/training/improving-layouts/smooth-scrolling.html
 
     private static class ViewHolder {
         RelativeLayout itemLayout;
@@ -99,7 +83,6 @@ public class QuizListAdapter extends BaseAdapter {
             //and store it as the 'tag' of our view
             row.setTag(holder);
         } else {
-            //We've already seen this one before!
             holder = (ViewHolder) row.getTag();
         }
 
