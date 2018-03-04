@@ -36,6 +36,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.lang.ref.WeakReference;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.HashMap;
@@ -50,14 +51,17 @@ public class MainActivity extends AppCompatActivity {
     //int i=0;
     //int j=0;
     LinkedHashMap<String, String> results = new LinkedHashMap<>();
-    String imagename;
     ProgressDialog progressDialog;
     String[] imageUrls;
+    private static Context mContext;
+    DownloadImage mDownloadImage;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        mContext = getApplicationContext();
 
         quizList = findViewById(R.id.quizList);
         mAdapter = new QuizListAdapter(getApplicationContext());
@@ -111,9 +115,35 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    public static int calculateInSampleSize(
+            BitmapFactory.Options options, int reqWidth, int reqHeight) {
+        // Raw height and width of image
+        final int height = options.outHeight;
+        final int width = options.outWidth;
+        int inSampleSize = 1;
+
+        if (height > reqHeight || width > reqWidth) {
+
+            final int halfHeight = height / 2;
+            final int halfWidth = width / 2;
+
+            // Calculate the largest inSampleSize value that is a power of 2 and keeps both
+            // height and width larger than the requested height and width.
+            while ((halfHeight / inSampleSize) >= reqHeight
+                    && (halfWidth / inSampleSize) >= reqWidth) {
+                inSampleSize *= 2;
+            }
+        }
+
+        return inSampleSize;
+    }
+
     public void loadQuizzes(){
 
             String quizList = readFromFile(getApplicationContext(),"quizList");
+
+            BitmapFactory.Options options = new BitmapFactory.Options();
+            options.inJustDecodeBounds = true;
 
             try {
                 JSONObject jsonQuizList = new JSONObject(quizList);
@@ -123,8 +153,11 @@ public class MainActivity extends AppCompatActivity {
 
                     String title;
                     JSONObject quizObject = jsonQuizArray.getJSONObject(i);
+                    BitmapFactory.decodeFile(getApplicationContext().getFilesDir().getPath()+"/image"+i+".jpg", options);
+                    options.inSampleSize = calculateInSampleSize(options, 160, 120);
+                    options.inJustDecodeBounds = false;
                     Bitmap quizImage = BitmapFactory.decodeFile(getApplicationContext().getFilesDir().getPath()+"/image"+i+".jpg");
-
+                    Log.e("Size",String.valueOf(quizImage.getByteCount()));
                     title = quizObject.getString("title");
                     mAdapter.add(new Quiz(title, "", quizImage));
                 }
@@ -223,6 +256,7 @@ public class MainActivity extends AppCompatActivity {
         protected void onPreExecute() {
             progressDialog = new ProgressDialog(MainActivity.this);
             progressDialog.setMessage("Pobieranie danych...");
+            progressDialog.setCanceledOnTouchOutside(false);
             progressDialog.show();
         }
 
@@ -292,7 +326,6 @@ public class MainActivity extends AppCompatActivity {
 
                 Toast.makeText(getApplicationContext(), "Cannot download3", Toast.LENGTH_LONG).show();
             }
-
         }
     }
 
@@ -324,6 +357,8 @@ public class MainActivity extends AppCompatActivity {
                 in.close();
 
                 writeToFile(result, getApplicationContext(), "quiz" + i);
+                Log.i("image","save "+i+" quiz");
+
                 //i++;
                 //return result;
             }
@@ -341,7 +376,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public class BitmapWithName {
+    /*public class BitmapWithName {
         private final Bitmap mBitmap;
         private final String mName;
 
@@ -358,28 +393,63 @@ public class MainActivity extends AppCompatActivity {
         public String getName() {
             return mName;
         }
+    }*/
+
+    public static Context getContext() {
+        return mContext;
     }
 
-    public class DownloadImage extends AsyncTask<String, Void, BitmapWithName> {
+    public class DownloadImage extends AsyncTask<String, Void, Bitmap> {
+
+       // private WeakReference<MainActivity> mainActivityReference;
+        //private WeakReference<DownloadQuiz> activityReference;
+
+        //WeakReference<Context> cReference = new WeakReference<Context>(getContext());
+
+        // only retain a weak reference to the activity
+
+        /*DownloadImage(MainActivity context) {
+            mainActivityReference = new WeakReference<>(context);
+        }
+
+        DownloadImage(DownloadQuiz context) {
+            activityReference = new WeakReference<>(context);
+        }
+   */
 
         @Override
-        protected BitmapWithName doInBackground(String... urls) {
+        protected Bitmap doInBackground(String... urls) {
 
-               // imagename = "image" + j + ".jpg";
-               // Log.e("image",imagename);
+            FileOutputStream outputStream;
 
-                for (int i=0; i<urls.length; i++) {
+            String imagename;
+            //BitmapWithName bitmapWithName;
+
+            //DownloadQuiz activity = activityReference.get();
+            //MainActivity mainActivity = mainActivityReference.get();
+
+
+            for (int i=0; i<urls.length; i++) {
                     imagename = "image" + i + ".jpg";
 
                     try {
-                        Bitmap bitmap = Glide.with(getApplicationContext())
+                        Bitmap bitmap = Glide.with(getContext())
                                 .load(urls[i])
                                 .asBitmap()
-                                .into(640, 480)
+                                .skipMemoryCache(true)
+                                .centerCrop()
+                                .into(320, 240)
                                 .get();
 
-                        BitmapWithName bitmapWithName = new BitmapWithName(bitmap, imagename);
-                        saveImage(bitmapWithName.getBitmap(), bitmapWithName.getName());
+                        //bitmapWithName = new BitmapWithName(bitmap, imagename);
+
+                            outputStream = openFileOutput(imagename, Context.MODE_PRIVATE);
+                            bitmap.compress(Bitmap.CompressFormat.JPEG, 90, outputStream);
+                            outputStream.flush();
+                            outputStream.close();
+
+                       // mainActivity.saveImage(bitmap, imagename);
+                        Log.i("image","save "+i+" image");
                         //j++;
                         //return bitmapWithName;
 
@@ -387,15 +457,18 @@ public class MainActivity extends AppCompatActivity {
                         e.printStackTrace();
                     } catch (ExecutionException e) {
                         e.printStackTrace();
+                    } catch (Exception e) {
+                        e.printStackTrace();
                     }
                 }
                 return null;
-
         }
 
         @Override
-        protected void onPostExecute(BitmapWithName bitmap) {
+        protected void onPostExecute(Bitmap bitmap) {
             super.onPostExecute(bitmap);
+            //MainActivity activity = mainActivityReference.get();
+            //if (activity == null || activity.isFinishing()) return;
             progressDialog.dismiss();
             loadQuizzes();
         }

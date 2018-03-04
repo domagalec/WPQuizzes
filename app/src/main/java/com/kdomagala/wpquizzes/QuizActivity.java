@@ -42,6 +42,7 @@ public class QuizActivity extends AppCompatActivity {
     TextView quizResult;
     TextView quizResultPercent;
     TextView percentTextView;
+    TextView goodWrongTextView;
     ImageView quizImage;
     ProgressBar progressBar;
     Button button0;
@@ -76,6 +77,7 @@ public class QuizActivity extends AppCompatActivity {
         progressBar = findViewById(R.id.quizProgressBar);
         quizResult = findViewById(R.id.quizResult);
         percentTextView = findViewById(R.id.percentTextView);
+        goodWrongTextView = findViewById(R.id.goodWrongTextView);
         button0 = findViewById(R.id.answer0);
         button1 = findViewById(R.id.answer1);
         button2 = findViewById(R.id.answer2);
@@ -134,9 +136,16 @@ public class QuizActivity extends AppCompatActivity {
 
     public void answer(final View v){
 
+        //Correct asnwer
         if (v.getTag().toString().equals(Integer.toString(correctAnswer))) {
             v.getBackground().setColorFilter(Color.GREEN, PorterDuff.Mode.MULTIPLY);
+            goodWrongTextView.setText("Dobrze!");
             numberOfCorrectAnswers++;
+            button0.setEnabled(false);
+            button1.setEnabled(false);
+            button2.setEnabled(false);
+            button3.setEnabled(false);
+
             final Handler handler = new Handler();
             handler.postDelayed(new Runnable() {
                 @Override
@@ -148,8 +157,14 @@ public class QuizActivity extends AppCompatActivity {
                 }
             }, 500);
 
+        //Wrong answer
         } else {
             v.getBackground().setColorFilter(Color.RED, PorterDuff.Mode.MULTIPLY);
+            goodWrongTextView.setText("Źle");
+            button0.setEnabled(false);
+            button1.setEnabled(false);
+            button2.setEnabled(false);
+            button3.setEnabled(false);
             final Handler handler = new Handler();
             handler.postDelayed(new Runnable() {
                 @Override
@@ -168,6 +183,11 @@ public class QuizActivity extends AppCompatActivity {
         progressBar.setProgress(100*k/jQuestionsArray.length());
         percents = 100*k/jQuestionsArray.length() +" %";
         percentTextView.setText(percents);
+        goodWrongTextView.setText("");
+        button0.setEnabled(true);
+        button1.setEnabled(true);
+        button2.setEnabled(true);
+        button3.setEnabled(true);
 
         quizResult.setText("Poprawne: "+numberOfCorrectAnswers +" / "+k);
 
@@ -177,7 +197,7 @@ public class QuizActivity extends AppCompatActivity {
             setContentView(R.layout.quiz_end_screen);
             int percents = 100*numberOfCorrectAnswers/jQuestionsArray.length();
             quizResultPercent = findViewById(R.id.quizResultPercent);
-            result = numberOfCorrectAnswers +" / "+ jQuestionsArray.length()+" = "+percents+"%";
+            result = numberOfCorrectAnswers +" / "+ jQuestionsArray.length()+"    "+percents+"%";
             quizResultPercent.setText(result);
         }
     }
