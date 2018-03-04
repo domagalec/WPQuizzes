@@ -47,8 +47,8 @@ public class MainActivity extends AppCompatActivity {
 
     QuizListAdapter mAdapter;
     ListView quizList;
-    int i=0;
-    int j=0;
+    //int i=0;
+    //int j=0;
     LinkedHashMap<String, String> results = new LinkedHashMap<>();
     String imagename;
     ProgressDialog progressDialog;
@@ -129,7 +129,7 @@ public class MainActivity extends AppCompatActivity {
                     mAdapter.add(new Quiz(title, "", quizImage));
                 }
 
-                i=0;
+                //i=0;
 
             } catch (JSONException e) {
                 Toast.makeText(getApplicationContext(), "Cannot download3", Toast.LENGTH_LONG).show();
@@ -268,26 +268,25 @@ public class MainActivity extends AppCompatActivity {
                 JSONArray jsonQuizArray = jsonQuizList.getJSONArray("items");
 
                 String[] quizIds = new String[jsonQuizArray.length()];
-                String[] imageUrls = new String[jsonQuizArray.length()];
+                imageUrls = new String[jsonQuizArray.length()];
 
                 for (int i = 0; i < jsonQuizArray.length(); i++) {
 
                     JSONObject quizObject = jsonQuizArray.getJSONObject(i);
-                    quizIds[i] = quizObject.getString("id");
+
+                    //"http://quiz.o2.pl/api/v1/quiz/"+quizIds[i]+"/0";
+                    quizIds[i] = "http://quiz.o2.pl/api/v1/quiz/"+quizObject.getString("id")+"/0";
                     JSONObject jPhotoObject = quizObject.getJSONObject("mainPhoto");
                     String photoUrl = "";
                     photoUrl = jPhotoObject.getString("url");
-                    //imageUrls[i] = jPhotoObject.getString("url");
-
-                    DownloadQuiz downloadQuiz = new DownloadQuiz();
-                    downloadQuiz.execute("http://quiz.o2.pl/api/v1/quiz/"+quizIds[i]+"/0");
-
-                    DownloadImage downloadImage = new DownloadImage();
-                    downloadImage.execute(photoUrl);
+                    imageUrls[i] = jPhotoObject.getString("url");
                 }
 
-                i=0;
-                j=0;
+                DownloadQuiz downloadQuiz = new DownloadQuiz();
+                downloadQuiz.execute(quizIds);
+
+                //i=0;
+                //j=0;
 
             } catch (JSONException e) {
 
@@ -307,35 +306,38 @@ public class MainActivity extends AppCompatActivity {
             HttpURLConnection urlConnection;
 
             try {
-                url = new URL(urls[0]);
+
+            for (int i = 0; i < urls.length; i++) {
+
+                url = new URL(urls[i]);
                 urlConnection = (HttpURLConnection) url.openConnection();
                 InputStream in = urlConnection.getInputStream();
                 BufferedReader reader = new BufferedReader(new InputStreamReader(in, "UTF-8"), 8);
                 StringBuilder sb = new StringBuilder();
 
                 String line;
-                while ((line = reader.readLine()) != null)
-                {
+                while ((line = reader.readLine()) != null) {
                     sb.append(line).append("\n");
                 }
                 result = sb.toString();
 
                 in.close();
 
-                writeToFile(result,getApplicationContext(),"quiz"+i);
-                i++;
-                return result;
-
-            } catch (Exception e) {
-                Toast.makeText(getApplicationContext(), "Cannot download4", Toast.LENGTH_LONG).show();
+                writeToFile(result, getApplicationContext(), "quiz" + i);
+                //i++;
+                //return result;
             }
+                } catch (Exception e) {
+                    Toast.makeText(getApplicationContext(), "Cannot download4", Toast.LENGTH_LONG).show();
+                }
 
             return null;
         }
 
         @Override
         protected void onPostExecute(String result) {
-
+            DownloadImage downloadImage = new DownloadImage();
+            downloadImage.execute(imageUrls);
         }
     }
 
@@ -360,32 +362,33 @@ public class MainActivity extends AppCompatActivity {
 
     public class DownloadImage extends AsyncTask<String, Void, BitmapWithName> {
 
-        private ProgressDialog progressDialog = new ProgressDialog(MainActivity.this);
-
         @Override
         protected BitmapWithName doInBackground(String... urls) {
 
-                imagename = "image" + j + ".jpg";
-                Log.e("image",imagename);
+               // imagename = "image" + j + ".jpg";
+               // Log.e("image",imagename);
 
-                try {
-                    Bitmap bitmap = Glide.with(getApplicationContext())
-                            .load(urls[0])
-                            .asBitmap()
-                            .into(640, 480)
-                            .get();
+                for (int i=0; i<urls.length; i++) {
+                    imagename = "image" + i + ".jpg";
 
-                    BitmapWithName bitmapWithName = new BitmapWithName(bitmap, imagename);
-                    saveImage(bitmapWithName.getBitmap(),bitmapWithName.getName());
-                    j++;
-                    return bitmapWithName;
+                    try {
+                        Bitmap bitmap = Glide.with(getApplicationContext())
+                                .load(urls[i])
+                                .asBitmap()
+                                .into(640, 480)
+                                .get();
 
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                } catch (ExecutionException e) {
-                    e.printStackTrace();
+                        BitmapWithName bitmapWithName = new BitmapWithName(bitmap, imagename);
+                        saveImage(bitmapWithName.getBitmap(), bitmapWithName.getName());
+                        //j++;
+                        //return bitmapWithName;
+
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    } catch (ExecutionException e) {
+                        e.printStackTrace();
+                    }
                 }
-
                 return null;
 
         }

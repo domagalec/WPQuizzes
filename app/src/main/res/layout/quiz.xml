@@ -24,6 +24,15 @@
         android:textAlignment="center"
         android:textAppearance="@style/Base.TextAppearance.AppCompat.Large" />
 
+    <ImageView
+        android:id="@+id/quizImage"
+        android:layout_width="160dp"
+        android:layout_height="120dp"
+        android:layout_below="@id/quizQuestion"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="5dp"
+        android:layout_marginTop="5dp" />
+
     <ProgressBar
         android:id="@+id/quizProgressBar"
         style="?android:attr/progressBarStyleHorizontal"

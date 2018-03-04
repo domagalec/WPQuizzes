@@ -2,6 +2,8 @@ package com.kdomagala.wpquizzes;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.GradientDrawable;
@@ -40,6 +42,7 @@ public class QuizActivity extends AppCompatActivity {
     TextView quizResult;
     TextView quizResultPercent;
     TextView percentTextView;
+    ImageView quizImage;
     ProgressBar progressBar;
     Button button0;
     Button button1;
@@ -69,6 +72,7 @@ public class QuizActivity extends AppCompatActivity {
 
         quizTitle = findViewById(R.id.quizTitle);
         quizQuestion = findViewById(R.id.quizQuestion);
+        quizImage = findViewById(R.id.quizImage);
         progressBar = findViewById(R.id.quizProgressBar);
         quizResult = findViewById(R.id.quizResult);
         percentTextView = findViewById(R.id.percentTextView);
@@ -82,9 +86,11 @@ public class QuizActivity extends AppCompatActivity {
         String title = i.getStringExtra("title");
 
         quiz = readFromFile(getApplicationContext(),"quiz"+position);
+        Bitmap quizBitmap = BitmapFactory.decodeFile(getApplicationContext().getFilesDir().getPath()+"/image"+position+".jpg");
 
         quizTitle.setText(title);
         quizResult.setText(i.getStringExtra("id"));
+        quizImage.setImageBitmap(quizBitmap);
 
         createQuestion();
     }
