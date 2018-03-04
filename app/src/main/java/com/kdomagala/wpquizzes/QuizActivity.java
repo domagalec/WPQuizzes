@@ -115,6 +115,7 @@ public class QuizActivity extends AppCompatActivity {
             for (int j = 0; j < jsonAnswers.length(); j++) {
                 JSONObject answersObject = jsonAnswers.getJSONObject(j);
                 answer[j] = answersObject.getString("text");
+
                 if (answersObject.has("isCorrect"))
                     correctAnswer = j;
             }
@@ -131,6 +132,9 @@ public class QuizActivity extends AppCompatActivity {
         } catch (JSONException e) {
 
             Toast.makeText(getApplicationContext(), "Cannot download3", Toast.LENGTH_LONG).show();
+        } catch (ArrayIndexOutOfBoundsException e){
+            e.printStackTrace();
+            Toast.makeText(getApplicationContext(), "Błąd: quiz ma więcej niż 4 odpowiedzi", Toast.LENGTH_SHORT).show();
         }
     }
 

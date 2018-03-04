@@ -14,6 +14,7 @@
         android:layout_centerHorizontal="true"
         android:text="TextView"
         android:textAlignment="center" />
+
     <ImageView
         android:id="@+id/quizImage"
         android:layout_width="160dp"
@@ -40,23 +41,20 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="15dp"
         android:layout_above="@id/percentTextView" />
+
     <TextView
         android:id="@+id/percentTextView"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_above="@+id/goodWrongTextView"
-        android:layout_alignEnd="@+id/quizTitle"
-        android:layout_alignRight="@+id/quizTitle"
         android:layout_centerHorizontal="true"
         android:textAlignment="center" />
 
     <TextView
         android:id="@+id/goodWrongTextView"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_above="@+id/answer0"
-        android:layout_alignEnd="@+id/quizTitle"
-        android:layout_alignRight="@+id/quizTitle"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="5dp"
         android:textAlignment="center"

@@ -1,11 +1,15 @@
 package com.kdomagala.wpquizzes;
 
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.net.ConnectivityManager;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Looper;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -48,20 +52,33 @@ public class MainActivity extends AppCompatActivity {
 
     QuizListAdapter mAdapter;
     ListView quizList;
-    //int i=0;
-    //int j=0;
     LinkedHashMap<String, String> results = new LinkedHashMap<>();
     ProgressDialog progressDialog;
     String[] imageUrls;
-    private static Context mContext;
-    DownloadImage mDownloadImage;
+    DownloadQuiz downloadQuiz;
+    DownloadQuizList downloadQuizList;
+    DownloadImage downloadImage;
+
+    public boolean isNetworkAvailable() {
+        ConnectivityManager cm = (ConnectivityManager) this.getSystemService(Context.CONNECTIVITY_SERVICE);
+
+        if (cm != null) {
+            if (cm.getActiveNetworkInfo() != null && cm.getActiveNetworkInfo().isAvailable()
+                    && cm.getActiveNetworkInfo().isConnected()) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+        else
+            return false;
+    }
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        mContext = getApplicationContext();
 
         quizList = findViewById(R.id.quizList);
         mAdapter = new QuizListAdapter(getApplicationContext());
@@ -75,9 +92,29 @@ public class MainActivity extends AppCompatActivity {
                 loadQuizzes();
         }
         else {
-            DownloadQuizList downloadQuizList = new DownloadQuizList();
-            downloadQuizList.execute("http://quiz.o2.pl/api/v1/quizzes/0/100");
-            Log.i("File", "File doesn't exists");
+            if(isNetworkAvailable()) {
+                downloadQuizList = new DownloadQuizList();
+                downloadQuizList.execute("http://quiz.o2.pl/api/v1/quizzes/0/100");
+                Log.i("File", "File doesn't exists");
+            }
+            else {
+                AlertDialog.Builder builder;
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                    builder = new AlertDialog.Builder(MainActivity.this, android.R.style.Theme_Material_Dialog_Alert);
+                } else {
+                    builder = new AlertDialog.Builder(MainActivity.this);
+                }
+                builder.setTitle("Brak połączenia")
+                        .setMessage("Upewnij się, że masz połączenie z internetem i spróbuj ponownie")
+                        .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                            finish();
+                            }
+                        })
+                        .setIcon(android.R.drawable.ic_dialog_alert)
+                        .show();
+            }
+
         }
 
         File resultsfile = new File (getApplicationContext().getFilesDir().getPath()+"/results");
@@ -157,12 +194,9 @@ public class MainActivity extends AppCompatActivity {
                     options.inSampleSize = calculateInSampleSize(options, 160, 120);
                     options.inJustDecodeBounds = false;
                     Bitmap quizImage = BitmapFactory.decodeFile(getApplicationContext().getFilesDir().getPath()+"/image"+i+".jpg");
-                    Log.e("Size",String.valueOf(quizImage.getByteCount()));
                     title = quizObject.getString("title");
                     mAdapter.add(new Quiz(title, "", quizImage));
                 }
-
-                //i=0;
 
             } catch (JSONException e) {
                 Toast.makeText(getApplicationContext(), "Cannot download3", Toast.LENGTH_LONG).show();
@@ -257,6 +291,7 @@ public class MainActivity extends AppCompatActivity {
             progressDialog = new ProgressDialog(MainActivity.this);
             progressDialog.setMessage("Pobieranie danych...");
             progressDialog.setCanceledOnTouchOutside(false);
+            progressDialog.setCancelable(false);
             progressDialog.show();
         }
 
@@ -316,11 +351,8 @@ public class MainActivity extends AppCompatActivity {
                     imageUrls[i] = jPhotoObject.getString("url");
                 }
 
-                DownloadQuiz downloadQuiz = new DownloadQuiz();
+                downloadQuiz = new DownloadQuiz();
                 downloadQuiz.execute(quizIds);
-
-                //i=0;
-                //j=0;
 
             } catch (JSONException e) {
 
@@ -329,7 +361,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public class DownloadQuiz extends AsyncTask<String,Void,String>{
+    public class DownloadQuiz extends AsyncTask<String,Integer,String>{
 
         @Override
         protected String doInBackground(String... urls) {
@@ -341,7 +373,7 @@ public class MainActivity extends AppCompatActivity {
             try {
 
             for (int i = 0; i < urls.length; i++) {
-
+                publishProgress(i);
                 url = new URL(urls[i]);
                 urlConnection = (HttpURLConnection) url.openConnection();
                 InputStream in = urlConnection.getInputStream();
@@ -358,9 +390,6 @@ public class MainActivity extends AppCompatActivity {
 
                 writeToFile(result, getApplicationContext(), "quiz" + i);
                 Log.i("image","save "+i+" quiz");
-
-                //i++;
-                //return result;
             }
                 } catch (Exception e) {
                     Toast.makeText(getApplicationContext(), "Cannot download4", Toast.LENGTH_LONG).show();
@@ -370,52 +399,26 @@ public class MainActivity extends AppCompatActivity {
         }
 
         @Override
+        protected void onProgressUpdate(Integer... i) {
+            progressDialog.setMessage("Pobieranie quizów: "+i[0]+" / 100");
+        }
+
+
+        @Override
         protected void onPostExecute(String result) {
-            DownloadImage downloadImage = new DownloadImage();
+            if (isCancelled()) {
+                File file = new File(getApplicationContext().getFilesDir().getPath() + "/quizList.txt");
+                if (file.exists()) {
+                    boolean delete = file.delete();
+                    Log.i("delete", "file deleted");
+                }
+            }
+            downloadImage = new DownloadImage();
             downloadImage.execute(imageUrls);
         }
     }
 
-    /*public class BitmapWithName {
-        private final Bitmap mBitmap;
-        private final String mName;
-
-        public BitmapWithName(Bitmap bitmap, String name)
-        {
-            this.mBitmap = bitmap;
-            this.mName = name;
-        }
-
-        public Bitmap getBitmap(){
-            return mBitmap;
-        }
-
-        public String getName() {
-            return mName;
-        }
-    }*/
-
-    public static Context getContext() {
-        return mContext;
-    }
-
-    public class DownloadImage extends AsyncTask<String, Void, Bitmap> {
-
-       // private WeakReference<MainActivity> mainActivityReference;
-        //private WeakReference<DownloadQuiz> activityReference;
-
-        //WeakReference<Context> cReference = new WeakReference<Context>(getContext());
-
-        // only retain a weak reference to the activity
-
-        /*DownloadImage(MainActivity context) {
-            mainActivityReference = new WeakReference<>(context);
-        }
-
-        DownloadImage(DownloadQuiz context) {
-            activityReference = new WeakReference<>(context);
-        }
-   */
+    public class DownloadImage extends AsyncTask<String, Integer, Bitmap> {
 
         @Override
         protected Bitmap doInBackground(String... urls) {
@@ -423,35 +426,26 @@ public class MainActivity extends AppCompatActivity {
             FileOutputStream outputStream;
 
             String imagename;
-            //BitmapWithName bitmapWithName;
-
-            //DownloadQuiz activity = activityReference.get();
-            //MainActivity mainActivity = mainActivityReference.get();
-
 
             for (int i=0; i<urls.length; i++) {
+                    publishProgress(i);
                     imagename = "image" + i + ".jpg";
 
                     try {
-                        Bitmap bitmap = Glide.with(getContext())
+                        Bitmap bitmap = Glide.with(getApplicationContext())
                                 .load(urls[i])
                                 .asBitmap()
                                 .skipMemoryCache(true)
                                 .centerCrop()
-                                .into(320, 240)
+                                .into(240, 160)
                                 .get();
-
-                        //bitmapWithName = new BitmapWithName(bitmap, imagename);
 
                             outputStream = openFileOutput(imagename, Context.MODE_PRIVATE);
                             bitmap.compress(Bitmap.CompressFormat.JPEG, 90, outputStream);
                             outputStream.flush();
                             outputStream.close();
 
-                       // mainActivity.saveImage(bitmap, imagename);
                         Log.i("image","save "+i+" image");
-                        //j++;
-                        //return bitmapWithName;
 
                     } catch (InterruptedException e) {
                         e.printStackTrace();
@@ -465,44 +459,31 @@ public class MainActivity extends AppCompatActivity {
         }
 
         @Override
+        protected void onProgressUpdate(Integer... i) {
+            progressDialog.setMessage("Pobieranie obrazów: "+i[0]+" / 100");
+        }
+
+        @Override
         protected void onPostExecute(Bitmap bitmap) {
             super.onPostExecute(bitmap);
-            //MainActivity activity = mainActivityReference.get();
-            //if (activity == null || activity.isFinishing()) return;
-            progressDialog.dismiss();
+            if (isCancelled()) {
+                File file = new File(getApplicationContext().getFilesDir().getPath() + "/quizList.txt");
+                if (file.exists()) {
+                    boolean delete = file.delete();
+                    Log.i("delete", "file deleted");
+                }
+            }
+
+            if (progressDialog.isShowing()) { progressDialog.dismiss();}
             loadQuizzes();
         }
     }
 
-    private void saveImage(Bitmap image, String imagename) {
-
-        FileOutputStream outputStream;
-
-        try {
-            outputStream = openFileOutput(imagename, Context.MODE_PRIVATE);
-            image.compress(Bitmap.CompressFormat.JPEG, 90, outputStream);
-            outputStream.close();
-
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-    }
-
-   @Override
-    public void onResume() {
-        super.onResume();
-
-        /*if (mAdapter.getCount() == 0)
-            loadQuizzes();*/
-    }
+    @Override
+    public void onResume() { super.onResume(); }
 
     @Override
-    public void onStart() {
-        super.onStart();
-
-        /*if (mAdapter.getCount() == 0)
-            loadQuizzes();*/
-    }
+    public void onStart() { super.onStart();  }
 
     @Override
     protected void onStop() {
@@ -510,13 +491,44 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onDestroy() {
-        super.onDestroy();
-    }
+    protected void onDestroy() { super.onDestroy(); }
 
     @Override
     protected void onPause() {
         super.onPause();
         saveResults();
+
+        /*if(downloadQuizList!=null)
+        {
+            downloadQuizList.cancel(true);
+            File file = new File (getApplicationContext().getFilesDir().getPath()+"/quizList.txt");
+            if(file.exists()){
+                boolean delete = file.delete();
+                Log.i("delete","file deleted");
+            }
+            else
+                Log.i("delete","no file deleted");
+        }
+        if(downloadQuiz!=null) {
+            downloadQuiz.cancel(true);
+            File file = new File (getApplicationContext().getFilesDir().getPath()+"/quizList.txt");
+            if(file.exists()){
+                boolean delete = file.delete();
+                Log.i("delete","file deleted");
+            }
+            else
+                Log.i("delete","no file deleted");
+        }
+        if(downloadImage!=null) {
+            downloadImage.cancel(true);
+            File file = new File (getApplicationContext().getFilesDir().getPath()+"/quizList.txt");
+            if(file.exists()){
+                boolean delete = file.delete();
+                Log.i("delete","file deleted");
+            }
+            else
+                Log.i("delete","no file deleted");
+
+        }*/
     }
 }
