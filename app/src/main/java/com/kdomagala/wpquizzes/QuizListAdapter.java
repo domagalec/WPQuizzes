@@ -1,10 +1,13 @@
 package com.kdomagala.wpquizzes;
 
+import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
@@ -17,7 +20,8 @@ public class QuizListAdapter extends RecyclerView.Adapter {
 
     private List<Quiz> mQuizList = new ArrayList<>();
     private RecyclerView mRecyclerView;
-
+    Context context;
+    TextView titleTextView;
     //private final Context mContext;
 
     private static final String TAG = "WPQuizzes";
@@ -35,6 +39,11 @@ public class QuizListAdapter extends RecyclerView.Adapter {
 
     @Override
     public int getItemCount() {
+
+        return mQuizList.size();
+    }
+
+    public int getCount() {
 
         return mQuizList.size();
     }
@@ -67,7 +76,6 @@ public class QuizListAdapter extends RecyclerView.Adapter {
             mTitleAdapterView = (TextView) pItem.findViewById(R.id.quizAdapterTitle);
             mResultAdapterView = (TextView) pItem.findViewById(R.id.quizAdapterResult);
             mAdapterImageView = (ImageView) pItem.findViewById(R.id.quizAdapterImage);
-
         }
     }
 
@@ -79,11 +87,27 @@ public class QuizListAdapter extends RecyclerView.Adapter {
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup viewGroup, final int i) {
         // tworzymy layout artykułu oraz obiekt ViewHoldera
-        View view = LayoutInflater.from(viewGroup.getContext())
+        final View view = LayoutInflater.from(viewGroup.getContext())
                 .inflate(R.layout.quiz_adapter, viewGroup, false);
+
+        view.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                int position = mRecyclerView.getChildAdapterPosition(v);
+                Intent intent = new Intent(v.getContext(), QuizActivity.class);
+                titleTextView = (TextView)v.findViewById(R.id.quizAdapterTitle);
+
+                // Quiz enteredQuiz = (Quiz) viewHolder.getItemAtPosition(position);
+
+                intent.putExtra("position", position);
+                intent.putExtra("title", titleTextView.getText().toString());
+                ((Activity) v.getContext()).startActivityForResult(intent, 1);
+            }
+        });
 
         // dla elementu listy ustawiamy obiekt OnClickListener,
         // który usunie element z listy po kliknięciu na niego
+
         /*view.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -101,12 +125,13 @@ public class QuizListAdapter extends RecyclerView.Adapter {
     }
 
     @Override
-    public void onBindViewHolder(RecyclerView.ViewHolder viewHolder, final int i) {
+    public void onBindViewHolder(final RecyclerView.ViewHolder viewHolder, final int i) {
         // uzupełniamy layout artykułu
         Quiz quiz = mQuizList.get(i);
         ((ViewHolder) viewHolder).mTitleAdapterView.setText(quiz.getTitle());
         ((ViewHolder) viewHolder).mResultAdapterView.setText(quiz.getResult());
         ((ViewHolder) viewHolder).mAdapterImageView.setImageBitmap(quiz.getBitmap());
+
     }
 
     /*@Override

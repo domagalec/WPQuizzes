@@ -54,6 +54,9 @@ public class MainActivity extends AppCompatActivity {
     DownloadQuiz downloadQuiz;
     DownloadQuizList downloadQuizList;
     DownloadImage downloadImage;
+    ArrayList<Quiz> quizzes = new ArrayList<>();
+    RecyclerView recyclerView;
+
 
 
     public boolean isNetworkAvailable() {
@@ -76,7 +79,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        RecyclerView recyclerView = (RecyclerView) findViewById(R.id.quizList);
+        recyclerView = (RecyclerView) findViewById(R.id.quizList);
         // w celach optymalizacji
         recyclerView.setHasFixedSize(true);
 
@@ -94,7 +97,7 @@ public class MainActivity extends AppCompatActivity {
             quizzes.add(new Quiz());
 */
         // tworzymy adapter oraz łączymy go z RecyclerView
-        recyclerView.setAdapter(new QuizListAdapter(quizzes, recyclerView));
+        //recyclerView.setAdapter(new QuizListAdapter(quizzes, recyclerView));
 
 
         /*quizList = findViewById(R.id.quizList);
@@ -106,8 +109,11 @@ public class MainActivity extends AppCompatActivity {
 
         File file = new File (getApplicationContext().getFilesDir().getPath()+"/quizList.txt");
         //TODO SPRAWDZIĆ CZY DZIAŁA GETITEMCOUNT ZAMIAST GETCOUNT
-        if(file.exists() && mAdapter.getItemCount()==0){
+        if(file.exists() && quizzes.size()==0){
                 loadQuizzes();
+                Log.i("Load", "Quizzes loaded");
+            Log.i("Adapter", "Adapter setted");
+
         }
         else {
             if(isNetworkAvailable()) {
@@ -141,7 +147,9 @@ public class MainActivity extends AppCompatActivity {
             loadResults();
         }
 
-        quizList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+
+
+        /*quizList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
                 Intent intent = new Intent(MainActivity.this, QuizActivity.class);
@@ -151,8 +159,10 @@ public class MainActivity extends AppCompatActivity {
                 intent.putExtra("title", enteredQuiz.getTitle());
                 startActivityForResult(intent, 1);
             }
-        });
+        });*/
     }
+
+    //TODO Naprawić activityresult!
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -204,6 +214,14 @@ public class MainActivity extends AppCompatActivity {
                 JSONObject jsonQuizList = new JSONObject(quizList);
                 JSONArray jsonQuizArray = jsonQuizList.getJSONArray("items");
 
+                ArrayList<Quiz> quizzes = new ArrayList<>();
+
+
+        /*for (int i = 0; i < 20; ++i)
+            quizzes.add(new Quiz());
+*/
+
+
                 for (int i = 0; i < jsonQuizArray.length(); i++) {
 
                     String title;
@@ -213,8 +231,13 @@ public class MainActivity extends AppCompatActivity {
                     options.inJustDecodeBounds = false;
                     Bitmap quizImage = BitmapFactory.decodeFile(getApplicationContext().getFilesDir().getPath()+"/image"+i+".jpg");
                     title = quizObject.getString("title");
-                    mAdapter.add(new Quiz(title, "", quizImage));
+
+                    quizzes.add(new Quiz(title, "", quizImage));
                 }
+                Log.i("quizzes size", String.valueOf(quizzes.size()));
+                recyclerView.setAdapter(new QuizListAdapter(quizzes, recyclerView));
+
+                // tworzymy adapter oraz łączymy go z RecyclerView
 
             } catch (JSONException e) {
                 Toast.makeText(getApplicationContext(), "Cannot download3", Toast.LENGTH_LONG).show();
@@ -224,7 +247,7 @@ public class MainActivity extends AppCompatActivity {
     private void saveResults(){
         //TODO SPRAWDZIĆ CZY DZIAŁA GETITEMCOUNT ZAMIAST GETCOUNT
 
-        for (int i=0; i<mAdapter.getItemCount(); i++){
+        for (int i=0; i<quizzes.size(); i++){
             Quiz quiz = (Quiz) mAdapter.getItem(i);
             results.put(quiz.getTitle(), quiz.getResult());
         }
@@ -254,7 +277,7 @@ public class MainActivity extends AppCompatActivity {
         }
         //TODO SPRAWDZIĆ CZY DZIAŁA GETITEMCOUNT ZAMIAST GETCOUNT
 
-        for (int i=0; i<mAdapter.getItemCount(); i++){
+        for (int i=0; i<quizzes.size(); i++){
             Quiz quiz = (Quiz) mAdapter.getItem(i);
             quiz.setResult(results.get(quiz.getTitle()));
         }
