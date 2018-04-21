@@ -54,7 +54,7 @@ public class MainActivity extends AppCompatActivity {
     DownloadQuiz downloadQuiz;
     DownloadQuizList downloadQuizList;
     DownloadImage downloadImage;
-    ArrayList<Quiz> quizzes = new ArrayList<>();
+    ArrayList<Quiz> quizzes;
     RecyclerView recyclerView;
 
 
@@ -108,7 +108,7 @@ public class MainActivity extends AppCompatActivity {
         registerForContextMenu(quizList);*/
 
         File file = new File (getApplicationContext().getFilesDir().getPath()+"/quizList.txt");
-        //TODO SPRAWDZIĆ CZY DZIAŁA GETITEMCOUNT ZAMIAST GETCOUNT
+        //TODO SPRAWDZIĆ CZY DZIAŁA gdy nie ma plików i jak przerwane pobieranie
         if(file.exists() && quizzes.size()==0){
                 loadQuizzes();
                 Log.i("Load", "Quizzes loaded");
@@ -162,8 +162,6 @@ public class MainActivity extends AppCompatActivity {
         });*/
     }
 
-    //TODO Naprawić activityresult!
-
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 
@@ -176,7 +174,8 @@ public class MainActivity extends AppCompatActivity {
             quiz.setResult(data.getStringExtra("result"));
             mAdapter.notifyDataSetChanged();
             //mAdapter.edit(editedItem, position);
-            quizList.setSelection(position);
+            recyclerView.getLayoutManager().scrollToPosition(position);
+            //quizList.setSelection(position);
         }
     }
 
@@ -214,7 +213,7 @@ public class MainActivity extends AppCompatActivity {
                 JSONObject jsonQuizList = new JSONObject(quizList);
                 JSONArray jsonQuizArray = jsonQuizList.getJSONArray("items");
 
-                ArrayList<Quiz> quizzes = new ArrayList<>();
+                quizzes = new ArrayList<>();
 
 
         /*for (int i = 0; i < 20; ++i)
@@ -235,7 +234,8 @@ public class MainActivity extends AppCompatActivity {
                     quizzes.add(new Quiz(title, "", quizImage));
                 }
                 Log.i("quizzes size", String.valueOf(quizzes.size()));
-                recyclerView.setAdapter(new QuizListAdapter(quizzes, recyclerView));
+                mAdapter = new QuizListAdapter(quizzes,recyclerView);
+                recyclerView.setAdapter(mAdapter);
 
                 // tworzymy adapter oraz łączymy go z RecyclerView
 
@@ -245,11 +245,13 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void saveResults(){
+        Log.i("result",String.valueOf(quizzes.size()));
         //TODO SPRAWDZIĆ CZY DZIAŁA GETITEMCOUNT ZAMIAST GETCOUNT
 
         for (int i=0; i<quizzes.size(); i++){
             Quiz quiz = (Quiz) mAdapter.getItem(i);
             results.put(quiz.getTitle(), quiz.getResult());
+            Log.i("result",quiz.getResult());
         }
 
         try {
@@ -276,6 +278,7 @@ public class MainActivity extends AppCompatActivity {
             e.printStackTrace();
         }
         //TODO SPRAWDZIĆ CZY DZIAŁA GETITEMCOUNT ZAMIAST GETCOUNT
+//TODO WYWALIĆ MADAPTER
 
         for (int i=0; i<quizzes.size(); i++){
             Quiz quiz = (Quiz) mAdapter.getItem(i);
@@ -535,6 +538,9 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onPause() {
         super.onPause();
+        Log.i("pause","entered on pause");
         saveResults();
+        Log.i("save","after save");
+
     }
 }
