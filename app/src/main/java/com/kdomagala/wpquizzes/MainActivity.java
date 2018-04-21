@@ -76,7 +76,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        RecyclerView recyclerView = (RecyclerView) findViewById(R.id.articles);
+        RecyclerView recyclerView = (RecyclerView) findViewById(R.id.quizList);
         // w celach optymalizacji
         recyclerView.setHasFixedSize(true);
 
@@ -87,12 +87,14 @@ public class MainActivity extends AppCompatActivity {
         recyclerView.setItemAnimator(new DefaultItemAnimator());
 
         // tworzymy źródło danych - tablicę z artykułami
-        ArrayList<Quiz> articles = new ArrayList<>();
-        for (int i = 0; i < 20; ++i)
-            articles.add(new Quiz());
+        ArrayList<Quiz> quizzes = new ArrayList<>();
 
+
+        /*for (int i = 0; i < 20; ++i)
+            quizzes.add(new Quiz());
+*/
         // tworzymy adapter oraz łączymy go z RecyclerView
-        recyclerView.setAdapter(new MyAdapter(articles, recyclerView));
+        recyclerView.setAdapter(new QuizListAdapter(quizzes, recyclerView));
 
 
         /*quizList = findViewById(R.id.quizList);
@@ -103,7 +105,8 @@ public class MainActivity extends AppCompatActivity {
         registerForContextMenu(quizList);*/
 
         File file = new File (getApplicationContext().getFilesDir().getPath()+"/quizList.txt");
-        if(file.exists() && mAdapter.getCount()==0){
+        //TODO SPRAWDZIĆ CZY DZIAŁA GETITEMCOUNT ZAMIAST GETCOUNT
+        if(file.exists() && mAdapter.getItemCount()==0){
                 loadQuizzes();
         }
         else {
@@ -219,8 +222,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void saveResults(){
+        //TODO SPRAWDZIĆ CZY DZIAŁA GETITEMCOUNT ZAMIAST GETCOUNT
 
-        for (int i=0; i<mAdapter.getCount(); i++){
+        for (int i=0; i<mAdapter.getItemCount(); i++){
             Quiz quiz = (Quiz) mAdapter.getItem(i);
             results.put(quiz.getTitle(), quiz.getResult());
         }
@@ -248,8 +252,9 @@ public class MainActivity extends AppCompatActivity {
         catch(ClassNotFoundException | IOException | ClassCastException e) {
             e.printStackTrace();
         }
+        //TODO SPRAWDZIĆ CZY DZIAŁA GETITEMCOUNT ZAMIAST GETCOUNT
 
-        for (int i=0; i<mAdapter.getCount(); i++){
+        for (int i=0; i<mAdapter.getItemCount(); i++){
             Quiz quiz = (Quiz) mAdapter.getItem(i);
             quiz.setResult(results.get(quiz.getTitle()));
         }

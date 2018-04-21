@@ -1,6 +1,7 @@
 package com.kdomagala.wpquizzes;
 
 import android.content.Context;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,17 +13,19 @@ import android.widget.TextView;
 import java.util.ArrayList;
 import java.util.List;
 
-public class QuizListAdapter extends BaseAdapter {
+public class QuizListAdapter extends RecyclerView.Adapter {
 
-    private final List<Quiz> mQuizList = new ArrayList<>();
-    private final Context mContext;
+    private List<Quiz> mQuizList = new ArrayList<>();
+    private RecyclerView mRecyclerView;
+
+    //private final Context mContext;
 
     private static final String TAG = "WPQuizzes";
 
-    public QuizListAdapter(Context context) {
+    /*public QuizListAdapter(Context context) {
 
         mContext = context;
-    }
+    }*/
 
     public void add(Quiz quiz) {
 
@@ -31,14 +34,13 @@ public class QuizListAdapter extends BaseAdapter {
     }
 
     @Override
-    public int getCount() {
+    public int getItemCount() {
 
         return mQuizList.size();
     }
 
     // Retrieve the number of Items
 
-    @Override
     public Object getItem(int pos) {
 
         return mQuizList.get(pos);
@@ -54,14 +56,65 @@ public class QuizListAdapter extends BaseAdapter {
 
     // Create a View for the Item at specified position
 
-    private static class ViewHolder {
-        RelativeLayout itemLayout;
-        TextView titleAdapterView;
-        TextView resultAdapterView;
-        ImageView quizAdapterImage;
+    private class ViewHolder extends RecyclerView.ViewHolder {
+        //RelativeLayout itemLayout;
+        TextView mTitleAdapterView;
+        TextView mResultAdapterView;
+        ImageView mAdapterImageView;
+
+        public ViewHolder(View pItem) {
+            super(pItem);
+            mTitleAdapterView = (TextView) pItem.findViewById(R.id.quizAdapterTitle);
+            mResultAdapterView = (TextView) pItem.findViewById(R.id.quizAdapterResult);
+            mAdapterImageView = (ImageView) pItem.findViewById(R.id.quizAdapterImage);
+
+        }
+    }
+
+    public QuizListAdapter(ArrayList<Quiz> pQuizzes, RecyclerView pRecyclerView){
+        mQuizList = pQuizzes;
+        mRecyclerView = pRecyclerView;
     }
 
     @Override
+    public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup viewGroup, final int i) {
+        // tworzymy layout artykułu oraz obiekt ViewHoldera
+        View view = LayoutInflater.from(viewGroup.getContext())
+                .inflate(R.layout.quiz_adapter, viewGroup, false);
+
+        // dla elementu listy ustawiamy obiekt OnClickListener,
+        // który usunie element z listy po kliknięciu na niego
+        /*view.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // odnajdujemy indeks klikniętego elementu
+                int positionToDelete = mRecyclerView.getChildAdapterPosition(v);
+                // usuwamy element ze źródła danych
+                mQuizList.remove(positionToDelete);
+                // poniższa metoda w animowany sposób usunie element z listy
+                notifyItemRemoved(positionToDelete);
+            }
+        });*/
+
+        // tworzymy i zwracamy obiekt ViewHolder
+        return new ViewHolder(view);
+    }
+
+    @Override
+    public void onBindViewHolder(RecyclerView.ViewHolder viewHolder, final int i) {
+        // uzupełniamy layout artykułu
+        Quiz quiz = mQuizList.get(i);
+        ((ViewHolder) viewHolder).mTitleAdapterView.setText(quiz.getTitle());
+        ((ViewHolder) viewHolder).mResultAdapterView.setText(quiz.getResult());
+        ((ViewHolder) viewHolder).mAdapterImageView.setImageBitmap(quiz.getBitmap());
+    }
+
+    /*@Override
+    public int getItemCount() {
+        return mArticles.size();
+    }*/
+
+    /*@Override
     public View getView(int position, View convertView, ViewGroup parent) {
 
         View row = convertView;
@@ -95,6 +148,6 @@ public class QuizListAdapter extends BaseAdapter {
 
         return row;
 
-    }
+    }*/
 }
 
