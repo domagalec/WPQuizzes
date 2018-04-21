@@ -1,38 +1,49 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/RelativeLayout1"
+<android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:card_view="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_weight="1"
-    android:orientation="vertical">
+    android:layout_margin="5dp"
+    card_view:cardBackgroundColor="#FEFEFE"
+    card_view:cardCornerRadius="5dp"
+    card_view:cardElevation="5dp">
 
-    <TextView
-        android:id="@+id/quizAdapterTitle"
+    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:id="@+id/RelativeLayout1"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:text="TextView"
-        android:textAlignment="center"
-        android:textColor="@android:color/black"
-        android:textSize="20sp" />
+        android:layout_weight="1"
+        android:orientation="vertical">
 
-    <ImageView
-        android:id="@+id/quizAdapterImage"
-        android:layout_width="160dp"
-        android:layout_height="120dp"
-        android:layout_below="@id/quizAdapterTitle"
-        android:layout_centerHorizontal="true"
-        android:layout_marginBottom="5dp"
-        android:layout_marginTop="5dp" />
+        <TextView
+            android:id="@+id/quizAdapterTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:text="TextView"
+            android:textAlignment="center"
+            android:textColor="@android:color/black"
+            android:textSize="20sp" />
 
-    <TextView
-        android:id="@+id/quizAdapterResult"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/quizAdapterImage"
-        android:layout_centerHorizontal="true"
-        android:text="TextView" />
+        <ImageView
+            android:id="@+id/quizAdapterImage"
+            android:layout_width="160dp"
+            android:layout_height="120dp"
+            android:layout_below="@id/quizAdapterTitle"
+            android:layout_centerHorizontal="true"
+            android:layout_marginBottom="5dp"
+            android:layout_marginTop="5dp" />
 
-</RelativeLayout>
+        <TextView
+            android:id="@+id/quizAdapterResult"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/quizAdapterImage"
+            android:layout_centerHorizontal="true"
+            android:text="TextView" />
+
+    </RelativeLayout>
+
+</android.support.v7.widget.CardView>

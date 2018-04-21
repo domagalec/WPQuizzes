@@ -12,6 +12,9 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.DefaultItemAnimator;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
@@ -37,6 +40,7 @@ import java.io.ObjectOutputStream;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.concurrent.ExecutionException;
 
@@ -72,12 +76,31 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        quizList = findViewById(R.id.quizList);
+        RecyclerView recyclerView = (RecyclerView) findViewById(R.id.articles);
+        // w celach optymalizacji
+        recyclerView.setHasFixedSize(true);
+
+        // ustawiamy LayoutManagera
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+
+        // ustawiamy animatora, który odpowiada za animację dodania/usunięcia elementów listy
+        recyclerView.setItemAnimator(new DefaultItemAnimator());
+
+        // tworzymy źródło danych - tablicę z artykułami
+        ArrayList<Quiz> articles = new ArrayList<>();
+        for (int i = 0; i < 20; ++i)
+            articles.add(new Quiz());
+
+        // tworzymy adapter oraz łączymy go z RecyclerView
+        recyclerView.setAdapter(new MyAdapter(articles, recyclerView));
+
+
+        /*quizList = findViewById(R.id.quizList);
         mAdapter = new QuizListAdapter(getApplicationContext());
 
         quizList = findViewById(R.id.quizList);
         quizList.setAdapter(mAdapter);
-        registerForContextMenu(quizList);
+        registerForContextMenu(quizList);*/
 
         File file = new File (getApplicationContext().getFilesDir().getPath()+"/quizList.txt");
         if(file.exists() && mAdapter.getCount()==0){
