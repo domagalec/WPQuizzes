@@ -35,7 +35,7 @@ public class QuizActivity extends AppCompatActivity {
     TextView quizResultPercent;
     TextView percentTextView;
     TextView goodWrongTextView;
-    ImageView quizImage;
+    //ImageView quizImage;
     ProgressBar progressBar;
     Button button0;
     Button button1;
@@ -64,7 +64,7 @@ public class QuizActivity extends AppCompatActivity {
 
         quizTitle = findViewById(R.id.quizTitle);
         quizQuestion = findViewById(R.id.quizQuestion);
-        quizImage = findViewById(R.id.quizImage);
+        //quizImage = findViewById(R.id.quizImage);
         progressBar = findViewById(R.id.quizProgressBar);
         quizResult = findViewById(R.id.quizResult);
         percentTextView = findViewById(R.id.percentTextView);
@@ -79,11 +79,11 @@ public class QuizActivity extends AppCompatActivity {
         String title = i.getStringExtra("title");
 
         quiz = readFromFile(getApplicationContext(),"quiz"+position);
-        Bitmap quizBitmap = BitmapFactory.decodeFile(getApplicationContext().getFilesDir().getPath()+"/image"+position+".jpg");
+        //Bitmap quizBitmap = BitmapFactory.decodeFile(getApplicationContext().getFilesDir().getPath()+"/image"+position+".jpg");
 
         quizTitle.setText(title);
         quizResult.setText(i.getStringExtra("id"));
-        quizImage.setImageBitmap(quizBitmap);
+        //quizImage.setImageBitmap(quizBitmap);
 
         createQuestion();
     }

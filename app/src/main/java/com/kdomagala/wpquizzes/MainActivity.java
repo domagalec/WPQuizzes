@@ -246,13 +246,16 @@ public class MainActivity extends AppCompatActivity {
 
     private void saveResults(){
         Log.i("result",String.valueOf(quizzes.size()));
-        //TODO SPRAWDZIĆ CZY DZIAŁA GETITEMCOUNT ZAMIAST GETCOUNT
 
         for (int i=0; i<quizzes.size(); i++){
             Quiz quiz = (Quiz) mAdapter.getItem(i);
             results.put(quiz.getTitle(), quiz.getResult());
-            Log.i("result",quiz.getResult());
+            if (i<2)
+                Log.i("result", results.toString());
+           // Log.i("result",quiz.getTitle() +" "+results.get(quiz.getTitle()));
         }
+
+        Log.i("savedresult",results.toString());
 
         try {
             FileOutputStream out = openFileOutput("results", Context.MODE_PRIVATE);
@@ -277,12 +280,11 @@ public class MainActivity extends AppCompatActivity {
         catch(ClassNotFoundException | IOException | ClassCastException e) {
             e.printStackTrace();
         }
-        //TODO SPRAWDZIĆ CZY DZIAŁA GETITEMCOUNT ZAMIAST GETCOUNT
-//TODO WYWALIĆ MADAPTER
 
         for (int i=0; i<quizzes.size(); i++){
             Quiz quiz = (Quiz) mAdapter.getItem(i);
             quiz.setResult(results.get(quiz.getTitle()));
+            Log.i("loadedresult",results.get(quiz.getTitle()));
         }
     }
 
